@@ -1,0 +1,11 @@
+---
+BasedOnStyle: LLVM
+
+AlignConsecutiveMacros: Consecutive
+AllowShortEnumsOnASingleLine: False
+AllowShortFunctionsOnASingleLine: Empty
+AlwaysBreakTemplateDeclarations: Yes
+ColumnLimit: 120
+IndentPPDirectives: BeforeHash
+PackConstructorInitializers: Never
+...
