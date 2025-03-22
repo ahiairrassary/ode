@@ -16,7 +16,7 @@ set(SRC_FILES
 )
 
 set(INCLUDE_FILES
-    #src/Global.hpp
+    src/OdeSolver.hpp
 )
 
 add_executable(ODE
