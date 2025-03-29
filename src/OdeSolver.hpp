@@ -5,21 +5,23 @@
 #include <functional>
 #include <vector>
 
+template <size_t N, typename T = double>
 class AbstractOdeSolver {
 public:
   virtual ~AbstractOdeSolver() = default;
 
-  virtual float advance(size_t n) const = 0;
+  virtual std::array<T, N> advance(size_t n) const = 0;
 
-  void solve(float t0, float u0, float tFinal, uint32_t num) {
+  void solve(T t0, T tFinal, uint32_t num, std::array<T, N> u0) {
     m_t0 = t0;
-    m_u0 = u0;
     m_tFinal = tFinal;
     m_num = num;
-    m_dt = tFinal / num;
+    m_dt = (tFinal - t0) / num;
 
-    m_t = std::vector<float>(num + 1, 0.0f);
-    m_u = std::vector<float>(num + 1, 0.0f);
+    m_u0 = u0;
+
+    m_t.resize(num + 1);
+    m_u.resize(num + 1);
 
     m_t[0] = m_t0;
     m_u[0] = m_u0;
@@ -30,35 +32,45 @@ public:
     }
   }
 
-  std::vector<float> getT() const {
+  std::vector<T> getT() const {
     return m_t;
   };
 
-  std::vector<float> getU() const {
+  std::vector<std::array<T, N>> getU() const {
     return m_u;
   };
 
 protected:
-  std::function<float(float t, float u)> m_func;
+  std::function<std::array<T, N>(T t, const std::array<T, N> &)> m_func;
 
-  float m_t0;
-  float m_u0;
-  float m_tFinal;
-  float m_num;
-  float m_dt;
+  T m_t0;
+  T m_tFinal;
+  T m_num;
+  T m_dt;
 
-  std::vector<float> m_t;
-  std::vector<float> m_u;
+  std::array<T, N> m_u0;
+
+  std::vector<T> m_t;
+  std::vector<std::array<T, N>> m_u;
 };
 
-class ForwardEuler_v0 : public AbstractOdeSolver {
+template <size_t N, typename T = double>
+class ForwardEuler_v0 : public AbstractOdeSolver<N, T> {
 public:
-  ForwardEuler_v0(const std::function<float(float t, float u)> &func) {
-    m_func = func;
+  ForwardEuler_v0(const std::function<std::array<T, N>(T t, const std::array<T, N> &)> &func) {
+    this->m_func = func;
   }
 
-  float advance(size_t n) const override {
-    return m_u[n] + m_dt * m_func(m_t[n], m_u[n]);
+  std::array<T, N> advance(size_t n) const override {
+    const auto F_N = this->m_func(this->m_t[n], this->m_u[n]);
+
+    std::array<T, N> tmp;
+
+    for (size_t i = 0; i < tmp.size(); ++i) {
+      tmp[i] = this->m_u[n][i] + this->m_dt * F_N[i];
+    }
+
+    return tmp;
   }
 };
 
