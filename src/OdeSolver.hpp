@@ -8,6 +8,10 @@
 template <size_t N, typename T = double>
 class AbstractOdeSolver {
 public:
+  AbstractOdeSolver(const std::function<std::array<T, N>(T t, const std::array<T, N> &)> &func) {
+    this->m_func = func;
+  }
+
   virtual ~AbstractOdeSolver() = default;
 
   virtual std::array<T, N> advance(size_t n) const = 0;
@@ -55,11 +59,9 @@ protected:
 };
 
 template <size_t N, typename T = double>
-class ForwardEuler_v0 : public AbstractOdeSolver<N, T> {
+class ForwardEuler : public AbstractOdeSolver<N, T> {
 public:
-  ForwardEuler_v0(const std::function<std::array<T, N>(T t, const std::array<T, N> &)> &func) {
-    this->m_func = func;
-  }
+  using AbstractOdeSolver<N, T>::AbstractOdeSolver; // Constructor
 
   std::array<T, N> advance(size_t n) const override {
     const auto F_N = this->m_func(this->m_t[n], this->m_u[n]);

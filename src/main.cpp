@@ -24,7 +24,7 @@ int main() {
       return tmp;
     };
 
-    ForwardEuler_v0<1, double> FESolver(logisticProblem);
+    ForwardEuler<1, double> FESolver(logisticProblem);
     FESolver.solve(0.0, 40.0, 400.0, {0.1});
 
     /*const auto T = FESolver.getT();
@@ -51,7 +51,7 @@ int main() {
     return tmp;
   };
 
-  ForwardEuler_v0<2, double> FESolver(pendulumProblem);
+  ForwardEuler<2, double> FESolver(pendulumProblem);
   FESolver.solve(0.0, 10.0, 1000.0, {M_PI / 4.0, 0.0});
 
   const auto T = FESolver.getT();
