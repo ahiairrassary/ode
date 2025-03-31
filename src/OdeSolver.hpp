@@ -6,6 +6,35 @@
 #include <vector>
 
 template <size_t N, typename T = double>
+constexpr std::array<T, N> operator+(std::array<T, N> lhs, const std::array<T, N> &rhs) {
+  for (size_t i = 0; i < N; ++i) {
+    lhs[i] += rhs[i];
+  }
+  return lhs;
+}
+
+template <size_t N, typename T = double>
+constexpr std::array<T, N> operator+(std::array<T, N> lhs, T rhs) {
+  for (size_t i = 0; i < N; ++i) {
+    lhs[i] += rhs;
+  }
+  return lhs;
+}
+
+template <size_t N, typename T = double>
+constexpr std::array<T, N> operator*(std::array<T, N> lhs, T rhs) {
+  for (size_t i = 0; i < N; ++i) {
+    lhs[i] *= rhs;
+  }
+  return lhs;
+}
+
+template <size_t N, typename T = double>
+constexpr std::array<T, N> operator*(T lhs, std::array<T, N> rhs) {
+  return rhs * lhs;
+}
+
+template <size_t N, typename T = double>
 class AbstractOdeSolver {
 public:
   AbstractOdeSolver(const std::function<std::array<T, N>(T t, const std::array<T, N> &)> &func) {
@@ -64,13 +93,30 @@ public:
   using AbstractOdeSolver<N, T>::AbstractOdeSolver; // Constructor
 
   std::array<T, N> advance(size_t n) const override {
-    const auto F_N = this->m_func(this->m_t[n], this->m_u[n]);
+    std::array<T, N> tmp;
+
+    tmp = this->m_u[n] + this->m_dt * this->m_func(this->m_t[n], this->m_u[n]);
+
+    return tmp;
+  }
+};
+
+template <size_t N, typename T = double>
+class RungeKutta4 : public AbstractOdeSolver<N, T> {
+public:
+  using AbstractOdeSolver<N, T>::AbstractOdeSolver; // Constructor
+
+  std::array<T, N> advance(size_t n) const override {
+    const T dt2 = this->m_dt / 2.0;
+
+    const auto k1 = this->m_func(this->m_t[n], this->m_u[n]);
+    const auto k2 = this->m_func(this->m_t[n] + dt2, this->m_u[n] + dt2 * k1);
+    const auto k3 = this->m_func(this->m_t[n] + dt2, this->m_u[n] + dt2 * k2);
+    const auto k4 = this->m_func(this->m_t[n] + this->m_dt, this->m_u[n] + this->m_dt * k3);
 
     std::array<T, N> tmp;
 
-    for (size_t i = 0; i < tmp.size(); ++i) {
-      tmp[i] = this->m_u[n][i] + this->m_dt * F_N[i];
-    }
+    tmp = this->m_u[n] + (this->m_dt / 6.0) * (k1 + 2.0 * k2 + 2.0 * k3 + k4);
 
     return tmp;
   }

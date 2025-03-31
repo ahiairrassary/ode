@@ -51,7 +51,7 @@ int main() {
     return tmp;
   };
 
-  ForwardEuler<2, double> FESolver(pendulumProblem);
+  RungeKutta4<2, double> FESolver(pendulumProblem);
   FESolver.solve(0.0, 10.0, 1000.0, {M_PI / 4.0, 0.0});
 
   const auto T = FESolver.getT();
