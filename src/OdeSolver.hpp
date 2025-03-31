@@ -5,7 +5,9 @@
 #include <functional>
 #include <vector>
 
-template <size_t N, typename T = double>
+// ****************************************
+
+template <typename T, size_t N>
 constexpr std::array<T, N> operator+(std::array<T, N> lhs, const std::array<T, N> &rhs) {
   for (size_t i = 0; i < N; ++i) {
     lhs[i] += rhs[i];
@@ -13,7 +15,7 @@ constexpr std::array<T, N> operator+(std::array<T, N> lhs, const std::array<T, N
   return lhs;
 }
 
-template <size_t N, typename T = double>
+template <typename T, size_t N>
 constexpr std::array<T, N> operator+(std::array<T, N> lhs, T rhs) {
   for (size_t i = 0; i < N; ++i) {
     lhs[i] += rhs;
@@ -21,7 +23,7 @@ constexpr std::array<T, N> operator+(std::array<T, N> lhs, T rhs) {
   return lhs;
 }
 
-template <size_t N, typename T = double>
+template <typename T, size_t N>
 constexpr std::array<T, N> operator*(std::array<T, N> lhs, T rhs) {
   for (size_t i = 0; i < N; ++i) {
     lhs[i] *= rhs;
@@ -29,12 +31,14 @@ constexpr std::array<T, N> operator*(std::array<T, N> lhs, T rhs) {
   return lhs;
 }
 
-template <size_t N, typename T = double>
-constexpr std::array<T, N> operator*(T lhs, std::array<T, N> rhs) {
+template <typename T, size_t N>
+constexpr std::array<T, N> operator*(T lhs, const std::array<T, N> &rhs) {
   return rhs * lhs;
 }
 
-template <size_t N, typename T = double>
+// ****************************************
+
+template <size_t N, typename T>
 class AbstractOdeSolver {
 public:
   AbstractOdeSolver(const std::function<std::array<T, N>(T t, const std::array<T, N> &)> &func) {
@@ -43,9 +47,10 @@ public:
 
   virtual ~AbstractOdeSolver() = default;
 
+  // Compute u[n+1]
   virtual std::array<T, N> advance(size_t n) const = 0;
 
-  void solve(T t0, T tFinal, uint32_t num, std::array<T, N> u0) {
+  void solve(T t0, T tFinal, uint32_t num, const std::array<T, N> &u0) {
     m_t0 = t0;
     m_tFinal = tFinal;
     m_num = num;
@@ -93,11 +98,7 @@ public:
   using AbstractOdeSolver<N, T>::AbstractOdeSolver; // Constructor
 
   std::array<T, N> advance(size_t n) const override {
-    std::array<T, N> tmp;
-
-    tmp = this->m_u[n] + this->m_dt * this->m_func(this->m_t[n], this->m_u[n]);
-
-    return tmp;
+    return (this->m_u[n] + this->m_dt * this->m_func(this->m_t[n], this->m_u[n]));
   }
 };
 
@@ -114,11 +115,7 @@ public:
     const auto k3 = this->m_func(this->m_t[n] + dt2, this->m_u[n] + dt2 * k2);
     const auto k4 = this->m_func(this->m_t[n] + this->m_dt, this->m_u[n] + this->m_dt * k3);
 
-    std::array<T, N> tmp;
-
-    tmp = this->m_u[n] + (this->m_dt / 6.0) * (k1 + 2.0 * k2 + 2.0 * k3 + k4);
-
-    return tmp;
+    return (this->m_u[n] + (this->m_dt / 6.0) * (k1 + 2.0 * k2 + 2.0 * k3 + k4));
   }
 };
 

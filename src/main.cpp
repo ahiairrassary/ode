@@ -12,6 +12,7 @@ int main() {
     auto logisticProblem = [](double t, const std::array<double, 1> &u) {
       (void)t;
 
+      // Inputs
       const double ALPHA = 0.2;
       const double R = 1.0;
 
@@ -25,7 +26,7 @@ int main() {
     };
 
     ForwardEuler<1, double> FESolver(logisticProblem);
-    FESolver.solve(0.0, 40.0, 400.0, {0.1});
+    FESolver.solve(0.0, 40.0, 400, {0.1});
 
     /*const auto T = FESolver.getT();
     const auto U = FESolver.getU();
@@ -35,30 +36,33 @@ int main() {
     }*/
   }
 
-  auto pendulumProblem = [](double t, const std::array<double, 2> &u) {
-    (void)t;
+  {
+    auto pendulumProblem = [](double t, const std::array<double, 2> &u) {
+      (void)t;
 
-    const double L = 1.0;
-    const double G = 9.81;
+      // Inputs
+      const double L = 1.0;
+      const double G = 9.81;
 
-    const double theta = u[0];
-    const double omega = u[1];
+      const double theta = u[0];
+      const double omega = u[1];
 
-    std::array<double, 2> tmp;
-    tmp[0] = omega;                    // dtheta
-    tmp[1] = -G / L * std::sin(theta); // domega
+      std::array<double, 2> tmp;
+      tmp[0] = omega;                    // dtheta
+      tmp[1] = -G / L * std::sin(theta); // domega
 
-    return tmp;
-  };
+      return tmp;
+    };
 
-  RungeKutta4<2, double> FESolver(pendulumProblem);
-  FESolver.solve(0.0, 10.0, 1000.0, {M_PI / 4.0, 0.0});
+    RungeKutta4<2, double> RK4Solver(pendulumProblem);
+    RK4Solver.solve(0.0, 10.0, 1000, {M_PI / 4.0, 0.0});
 
-  const auto T = FESolver.getT();
-  const auto U = FESolver.getU();
+    const auto T = RK4Solver.getT();
+    const auto U = RK4Solver.getU();
 
-  for (size_t i = 0; i < T.size(); ++i) {
-    std::cout << i << ": t=" << T[i] << ": (" << U[i][0] << " : " << U[i][1] << ")" << std::endl;
+    for (size_t i = 0; i < T.size(); ++i) {
+      std::cout << i << ": t=" << T[i] << ": (" << U[i][0] << " : " << U[i][1] << ")" << std::endl;
+    }
   }
 
   return EXIT_SUCCESS;
