@@ -16,6 +16,8 @@ set(SRC_FILES
 )
 
 set(INCLUDE_FILES
+    src/AdaptiveODESolver.hpp
+    src/ArrayLib.hpp
     src/OdeSolver.hpp
 )
 

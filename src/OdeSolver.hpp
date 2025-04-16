@@ -1,40 +1,10 @@
 #ifndef ODE_SOLVER_HPP
 #define ODE_SOLVER_HPP
 
-#include <cstdint>
 #include <functional>
 #include <vector>
 
-// ****************************************
-
-template <typename T, size_t N>
-constexpr std::array<T, N> operator+(std::array<T, N> lhs, const std::array<T, N> &rhs) {
-  for (size_t i = 0; i < N; ++i) {
-    lhs[i] += rhs[i];
-  }
-  return lhs;
-}
-
-template <typename T, size_t N>
-constexpr std::array<T, N> operator+(std::array<T, N> lhs, T rhs) {
-  for (size_t i = 0; i < N; ++i) {
-    lhs[i] += rhs;
-  }
-  return lhs;
-}
-
-template <typename T, size_t N>
-constexpr std::array<T, N> operator*(std::array<T, N> lhs, T rhs) {
-  for (size_t i = 0; i < N; ++i) {
-    lhs[i] *= rhs;
-  }
-  return lhs;
-}
-
-template <typename T, size_t N>
-constexpr std::array<T, N> operator*(T lhs, const std::array<T, N> &rhs) {
-  return rhs * lhs;
-}
+#include "ArrayLib.hpp"
 
 // ****************************************
 
@@ -54,9 +24,10 @@ public:
     m_t0 = t0;
     m_tFinal = tFinal;
     m_num = num;
-    m_dt = (tFinal - t0) / num;
 
-    m_u0 = u0;
+    m_u0 = u0; // Initial condition
+
+    m_dt = (tFinal - t0) / num;
 
     m_t.resize(num + 1);
     m_u.resize(num + 1);
@@ -84,6 +55,7 @@ protected:
   T m_t0;
   T m_tFinal;
   T m_num;
+
   T m_dt;
 
   std::array<T, N> m_u0;
