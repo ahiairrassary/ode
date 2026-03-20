@@ -7,5 +7,10 @@ AllowShortFunctionsOnASingleLine: Empty
 AlwaysBreakTemplateDeclarations: Yes
 ColumnLimit: 120
 IndentPPDirectives: BeforeHash
+NumericLiteralCase:
+  ExponentLetter: Lower
+  HexDigit: Upper
+  Prefix: Lower
+  Suffix: Lower
 PackConstructorInitializers: Never
 ...
